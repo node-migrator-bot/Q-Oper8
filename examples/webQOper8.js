@@ -4,10 +4,10 @@ var queryString = require("querystring");
 var path = require("path"); 
 var fs = require("fs");
 
-var threads = require('./threads');
+var qoper8 = require('qoper8');
 
-threads.start('', function() {
-  console.log("threads started!!!");
+qoper8.start('', function() {
+  console.log("Q-Oper8 started!!!");
   var trace = true;
 
   // define your handler that the master process will use for processing the results returned from
@@ -21,7 +21,7 @@ threads.start('', function() {
 
     var response = requestObj.response;
     var html = "<html>";
-    html = html + "<head><title>threads action response</title></head>";
+    html = html + "<head><title>Q-Oper8 action response</title></head>";
     html = html + "<body>";
     html = html + "<p>Action was processed !</p><p>Results: " + results + "</p>";
     html = html + "</body>";
@@ -59,7 +59,7 @@ threads.start('', function() {
       if (uri.indexOf('/test/') !== -1) {
         var action = {query: urlObj.query};
         var requestObj = {action: action, request: request, response: response, urlObj: urlObj};
-        threads.addToQueue(requestObj, handler);
+        qoper8.addToQueue(requestObj, handler);
       }
 
       // **************************************************

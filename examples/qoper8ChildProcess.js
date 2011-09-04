@@ -1,4 +1,4 @@
-var childProcess = require('./threads').childProcess;
+var childProcess = require('qoper8').childProcess;
 
 // Define your method that will process each incoming action
 // Go wild with synchronous code to your heart's content!
