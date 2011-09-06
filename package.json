@@ -1,7 +1,7 @@
 { 
  "name": "qoper8",
  "description": "Multi-thread manager for Node.js (0.5.x and later)",
- "version": "0.0.2",
+ "version": "0.0.3",
  "author": "Rob Tweed <rtweed@mgateway.com>",
  "repository": { 
    "type": "git",
