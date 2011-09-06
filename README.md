@@ -16,32 +16,42 @@ capability
 	   
 ##  What is Q-Oper8?
 
-*Q-Oper8* is a simple module for enabling and managing a scalable but high-performance multi-process 
+*Q-Oper8* is an easy-to-use module for enabling and managing a scalable but high-performance multi-process 
 environment in Node.js.  The primary incentive for writing it was to create a hybrid environment where 
-the many benefits of synchronous coding could be acheived without the risk of blocking the main server process.
+the many benefits of synchronous coding could be acheived without the risk of blocking the main server process,
+but, as a side effect of its architecture, it also returns many other significant benefits for users of Node.js.
 
 It consists of four components:
 
 - a master Node server process that is 100% asynchronous and non-blocking
-- a pool of child Node processes that **only ever handle a single action/request at a time**
+- a pool of *persistent* child Node processes that **only ever handle a single action/request at a time**
 - a queue of pending actions/requests
 - a queue processor that attempts to allocate requests/actions on the queue to available child Node processes
 
-The child processes persist throughout the lifetime of the master Node server process, so there is no setup/teardown 
-overhead or delay when handling requests/actions: the child processes that are flagged as being in the 
+The key aspect of the Q-Oper8 architecture is that you pre-determine the size of your child Node process pool and 
+these are started before anything else happens.  Subsequently, your child Node processes persist throughout the lifetime of 
+the master Node server process, so there is no setup/teardown 
+overhead or latency when handling requests/actions: the child processes that are flagged as being in the 
 *available process pool* are instantaneously available for use by the master process.
 
-It's the fact that the Child Node Processes only ever handle a single request at a time that makes it 
+It's the fact that each Child Node Processes only ever handle a single request at a time that makes it 
 possible for them to support synchronous coding, since they don't need to worry about blocking anyone else.
 
-Note: *Q-Oper8* is completely event-driven with no polling overheads.
+Note: *Q-Oper8* is completely event-driven with no polling overheads or delays.  Processing of the queue 
+is automatically triggered by two main events:
+
+- adding a request to the queue
+- a child Node process becoming available
 
 You have complete control over the behaviour and configuration of *Q-Oper8*.  You can:
 
-- determine the number of child Node processes that constitute the worker pool
-- write the child process logic that you require for handling your actions/requests
+- pre-determine the number of child Node processes that constitute the worker pool, based on your application's workload and 
+  available system resources
+- write the child process logic that you require for handling your actions/requests, which may be synchronous, asynchronous or any 
+  combination of sync and async
 - define a handler that runs on the master server to process the completed responses sent back from the child processes, eg 
-  to return the response as a web page to the originating client.
+  to return the response as a web page to the originating client.  It can even put more requests/actions back on the queue if
+  necessary
 
 Clearly, the larger the pool of Node.js processes, the less likely it is that the request/action queue will build up.  On the 
 other hand, each child Node process uses about 10Mb memory according to the Node.js documentation.  Additionally, the quicker 
@@ -53,9 +63,11 @@ The *Q-Oper8* module addresses many of the key potential drawbacks of Node.js, i
 
 - allowing safe use of synchronous logic with Node.js, avoiding the need for cumbersome, non-intuitive and difficult to maintain 
   nested callback structures.  Synchronous logic won't block the main server process
-- allowing the safe use of in-process synchronous database APIs, as exemplified by the [Globals](http://glogalsdb.org) database
+- allowing the safe use of in-process synchronous database APIs, as exemplified by the [Globals](http://globalsdb.org) database
 - providing protection to your main Node server process by isolating it from problems that might occur when handling particular 
   requests/actions.
+- isolating the main server process from processing that requires significant amounts of computation that would otherwise 
+  slow down the performance of the main server process for all concurrent users
 - distributing load across multiple Node processes, allowing Node to exploit multiple-core CPUs.
 - providing a highly scalable architecture that can be easily tailored to suit your traffic and processing demands.
 
