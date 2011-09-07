@@ -229,8 +229,17 @@ total processing time.  To run the second example:
 
        node qoper8Test.js
 	   
-Enjoy!
-	   
+## Benchmark Tests
+
+[Initial benchmark](https://groups.google.com/group/nodejs/browse_thread/thread/bffd501687f644e8?hl=en#) tests on a relatively 
+low-powered, single CPU server showed a maximum sustained throughput of over 10,000 requests/actions per second.  This is the 
+rate at which requests can be added to the queue without the queue growing or being exhausted.
+
+You can try out the benchmark tests for yourself: see *benchmark.js* which you will find in the */examples* directory of this
+ repository.  You can adjust the queue-creation rate by changing the maximum queue batch size and creation loop interval parameters.  
+ I will be grateful for any results for your particular configuration.
+
+   
 ## License
 
 Feel free to download, use and redistribute without restriction.  All I really ask for is acknowledgement of your use or 
