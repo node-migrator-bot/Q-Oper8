@@ -13,6 +13,9 @@ Twitter: @rtweed
 
 Note: *Q-Oper8* requires Node.js version 0.5.x or later, as it makes use of its child Node process
 capability
+
+**Node 2: Node.js build 0.5.6 appears to have lost the child_process.fork() method on which Q-Oper8
+ relies.  Build 0.5.4 is known to work correctly and is recommended for anyone wishing to use Q-Oper8**
 	   
 ##  What is Q-Oper8?
 
