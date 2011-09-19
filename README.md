@@ -233,6 +233,14 @@ total processing time.  To run the second example:
 low-powered, single CPU server showed a maximum sustained throughput of over 10,000 requests/actions per second.  This is the 
 rate at which requests can be added to the queue without the queue growing or being exhausted.
 
+**Update: ** On a 4 X CPU AMD Opteron-based (2.1 GHz) server with 8Gb memory, running Ubuntu 10.10 server 
+and Node.js 0.4.0:
+
+      1 child process:   6,000 requests/sec
+      2 child processes: 14,782 requests/sec
+      3 child processes: 18,348 requests/sec
+      4 child processes: 18,181 requests/sec
+
 You can try out the benchmark tests for yourself: see *benchmark.js* which you will find in the */examples* directory of this
  repository.  You can adjust the queue-creation rate by changing the maximum queue batch size and creation loop interval parameters.  
  I will be grateful for any results for your particular configuration.
