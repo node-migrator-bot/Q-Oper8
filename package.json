@@ -1,7 +1,7 @@
 { 
  "name": "qoper8",
- "description": "Multi-thread manager for Node.js (0.5.x and later)",
- "version": "0.0.4",
+ "description": "Multi-thread manager for Node.js",
+ "version": "0.0.5",
  "author": "Rob Tweed <rtweed@mgateway.com>",
  "repository": { 
    "type": "git",
@@ -13,7 +13,7 @@
   "os": [ "linux", "darwin" ],
   "directories": { "lib": "./lib/" },
   "main": "./lib/qoper8",
-  "engines": { "node" : ">=0.5.4" },
+  "engines": { "node" : ">=0.4.0" },
   "dependencies" : {},
   "licenses": [ "MIT" ]
 }

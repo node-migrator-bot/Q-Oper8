@@ -11,12 +11,9 @@ Twitter: @rtweed
 
        npm install qoper8
 
-Note: *Q-Oper8* requires Node.js version 0.5.x or later, as it makes use of its child Node process
-capability
 
-**Node 2: Node.js build 0.5.6 appears to have lost the child_process.fork() method on which Q-Oper8
- relies.  Build 0.5.4 is known to work correctly and is recommended for anyone wishing to use Q-Oper8**
-	   
+Note: Q-Oper8 will now work on Node.js version 0.4.x
+
 ##  What is Q-Oper8?
 
 *Q-Oper8* is an easy-to-use module for enabling and managing a scalable but high-performance multi-process 
@@ -75,8 +72,6 @@ The *Q-Oper8* module addresses many of the key potential drawbacks of Node.js, i
 - providing a highly scalable architecture that can be easily tailored to suit your traffic and processing demands.
 
 ##  Using the Q-Oper8 module
-
-Node.js 0.5.x must be installed
 
 The /examples directory contains a simple worked example of a master server process and a child process to handle web requests.
 
@@ -268,5 +263,4 @@ LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE A
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 
