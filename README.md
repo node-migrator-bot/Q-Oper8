@@ -144,6 +144,27 @@ the master Node process which will look after what is done with it, eg sending i
 
 Then just add the last line exactly as shown above.  That's it!  *Q-Oper8* will do the rest.
 
+By default, Q-Oper8 will assume that your child process *actionMethod()* function is synchronous and that it 
+will return the result as shown above.  However, you'll often require the use of asynchronous logic in 
+your *actionMethod()* function, in which case the result must be returned via a callback function.  To cater for 
+this, the childProcess.handler() function can take a second argument: 
+
+       isAsync // true|false
+
+Here's the previous example, written as an asynchronous version:
+
+       var childProcess = require('qoper8').childProcess;
+       
+       var actionMethod = function(action, callback) {
+         console.log("Action method: Process " + process.pid + ": action = " + JSON.stringify(action));
+         var result = "method completed for " + process.pid + " at " + new Date().toLocaleTimeString();
+         callback(result)
+       };
+
+       childProcess.handler(actionMethod, true);
+
+
+
 ## Defining the master Node Results Handler method
 
 You define this in the master Node process.  Here's an example that will package up the resonses from the child Processes
@@ -174,6 +195,48 @@ You add a reference to this handler whenever you add a request/action to the *Q-
 
        qoper8.addToQueue(requestObj, responseHandler);
 
+By default, Q-Oper8 will release a child process back to the available pool as soon as master Node
+Results Handler method has executed.  This is OK if the handler method does not contain asynchronous 
+logic.  If it does, there's a risk that the *requestObj* object gets overwritten by the next action before 
+it is fully processed by the first action handler method.  There are two ways to avoid this:
+
+- extract any values from the *requestObj* object into Javascript variables at the start of the handler method, 
+and use these values within any callback functions rather than properties of the requestObj object.
+
+- manually take control by using:
+
+         qoper8.asyncHandler();
+
+This instructs Q-Oper8 not to automatically release the child process after the handler method completes.  
+Instead, you manually release the child process using:
+
+         qoper8.makeProcessAvailable(pid);
+
+You can obtain the value of pid by specifying it as a third argument of your handler method.  So, the 
+example above could be rewritten as follows:
+
+      qoper8.asyncHandler();
+
+      var responseHandler = function(requestObj, results, pid) {
+        //console.log("This is the response handler: ");
+        //console.log("** action: " + JSON.stringify(requestObj.action));
+        //console.log("results = " + JSON.stringify(results));
+
+        var response = requestObj.response;
+        var html = "<html>";
+        html = html + "<head><title>Q-Oper8 action response</title></head>";
+        html = html + "<body>";
+        html = html + "<p>Action was processed !</p><p>Results: " + results + "</p>";
+        html = html + "</body>";
+        html = html + "</html>";
+
+        response.writeHead(200, {"Content-Type": "text/html"});  
+        response.write(html);  
+        response.end();
+		qoper8.makeProcessAvailable(pid);
+      };
+
+	   
 ## That's it!
 
 You now have the best of all worlds: a non-blocked scalable Node server process, with a pool of child Node processes in which you 
