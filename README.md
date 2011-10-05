@@ -57,6 +57,16 @@ Clearly, the larger the pool of Node.js processes, the less likely it is that th
 other hand, each child Node process uses about 10Mb memory according to the Node.js documentation.  Additionally, the quicker 
 your child process can handle a request, the sooner it will become available again to the pool to handle a queued request/action.
 
+In basic tests, optimum throughput appears to occur when the number of child processes is equal to, or one less than the 
+number of CPU cores.  However other factors may affect the optimum number of child processes you use.  See 
+the benchmark figures later in this documentation.
+
+The architecture of Q-Oper8 was modified in build 8 to transmit batches of messages between the master process 
+and the child processes.  This has improved throughput to nearly 5 times that of the original versions.  
+Optimum throughput occurred on the test machine when the message buffer 
+length was set to 8192 bytes, and so this is the default.  However you may find that altering the 
+*maxMsgLength* startup parameter will improve throughput.
+
 ##  Benefits of the Q-Oper8 module
 
 The *Q-Oper8* module addresses many of the key potential drawbacks of Node.js, including:
@@ -104,20 +114,21 @@ requestObj object so that the master Node process has the correct handle to allo
 
 The parameters that you can specify for the *Q-Oper8* *start()* function are as follows:
 
-- poolSize = the number of Node child processes to fire up (deafult = 5)
+- poolSize = the number of Node child processes to fire up (default = 4)
+- maxMsgLength = the length in bytes of the message buffer used to transfer action/requests from the queue 
+ to a child process (default = 8192)
 - childProcessPath = the filepath of the Node child process Javascript file (default = __dirname + '/qoper8ChildProcess.js')
 - monitorInterval = no of milliseconds delay between displaying process usage in console (default = 30000)
-- trace = true if you want to get a detailed activity trace to the Node.js console (default = true)
 - silentStart = true if you don't want any message to the console when *Q-Oper8* starts (default = false)
 
 For example:
 
       var qoper8 = require('qoper8');
 	  
-	  var params = {poolSize: 20, childProcessPath: '/home/user/node/myChildProc.js', trace: false};
+      var params = {poolSize: 20, childProcessPath: '/home/user/node/myChildProc.js', maxMsgLength: 4096};
       qoper8.start(params, function() {
         console.log("Q-Oper8 started!!!");
-		// start processing!
+          // start processing!
       });
 
 ##  Defining a child Node process
@@ -130,7 +141,7 @@ Here's a simple example:
 
        var childProcess = require('qoper8').childProcess;
        
-	   var actionMethod = function(action) {
+       var actionMethod = function(action) {
          console.log("Action method: Process " + process.pid + ": action = " + JSON.stringify(action));
          var result = "method completed for " + process.pid + " at " + new Date().toLocaleTimeString();
          return result;
@@ -233,7 +244,7 @@ example above could be rewritten as follows:
         response.writeHead(200, {"Content-Type": "text/html"});  
         response.write(html);  
         response.end();
-		qoper8.makeProcessAvailable(pid);
+        qoper8.makeProcessAvailable(pid);
       };
 
 	   
@@ -292,20 +303,29 @@ total processing time.  To run the second example:
 	   
 ## Benchmark Tests
 
-[Initial benchmark](https://groups.google.com/group/nodejs/browse_thread/thread/bffd501687f644e8?hl=en#) tests on a relatively 
-low-powered, single CPU server showed a maximum sustained throughput of over 10,000 requests/actions per second.  This is the 
-rate at which requests can be added to the queue without the queue growing or being exhausted.
+Benchmark tests on a relatively 
+low-powered, single CPU server showed a maximum sustained throughput of over 90,000 requests/actions per second.  
+This is the rate at which requests can be added to the queue without the queue growing or being exhausted.
 
-**Update: ** On a 4 X CPU AMD Opteron-based (2.1 GHz) server with 8Gb memory, running Ubuntu 10.10 server 
+On a 4 X CPU AMD Opteron-based (2.1 GHz) server with 8Gb memory, running Ubuntu 10.10 server 
 and Node.js 0.4.0:
 
-      1 child process:   6,000 requests/sec
-      2 child processes: 14,782 requests/sec
-      3 child processes: 18,348 requests/sec
-      4 child processes: 18,181 requests/sec
+      1 child process:   19,580 requests/sec
+      2 child processes: 40,540 requests/sec
+      3 child processes: 59,920 requests/sec
+      4 child processes: 90,630 requests/sec
+      5 child processes: 88,120 requests/sec
+      6 child processes: 85,570 requests/sec
+      7 child processes: 65,460 requests/sec
+      8 child processes: 63,200 requests/sec
+      9 child processes: 61,670 requests/sec
+     10 child processes: 60,730 requests/sec
 
 You can try out the benchmark tests for yourself: see *benchmark.js* which you will find in the */examples* directory of this
- repository.  You can adjust the queue-creation rate by changing the maximum queue batch size and creation loop interval parameters.  
+ repository.  You'll also find the *benchmarkChildProc.js* file which will run in your child processes. Make 
+sure you change the *childProcessPath* startup parameter in *benchmark.js* to the appropriate file path.
+
+You can adjust the queue-creation rate by changing the maximum queue batch size and creation loop interval parameters.  
  I will be grateful for any results for your particular configuration.
 
    

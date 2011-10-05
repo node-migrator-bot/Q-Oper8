@@ -1,34 +1,60 @@
-var scheduler = require('qoper8');
+var qoper8 = require('qoper8');
 
-// Try modifying the poolSize to see the effect to overall processing time
+// Try modifying the poolSize and maxMsgLength to see the effect to overall processing time
 
-var params = {poolSize: 5, trace: false};
+// You'll need to modify the childProcessPath to the location of your copy of benchmarkChildProc.js
 
-scheduler.start(params, function(queue) {
+var params = {poolSize: 4, maxMsgLength: 8192, childProcessPath: '/home/rob/gdbwork/benchmarkChildProc.js'};
+
+qoper8.start(params, function(queue) {
   console.log("started!!!");
 
   var startTime = new Date().getTime();
 
 // Try modifying the number of requests and batch addToQueue interval to test the performance of Q-Oper8
 // Tweak these values to try to create a balance where the queue is fed at the same rate as it's consumed
-  var maxQueue = 200;
-  var interval = 24;
+  var maxQueue = 500;
+  var interval = 1;
+  var noOfRequests = 0;
+  var total = 0;
+  var maxRequests = 500000;
 
 
   var total = 0;
 
-  var handler = function(actionObj, response) {
+  var handler = function(actionObj, response, pid) {
     total++;
-    if (total % 10000 === 0) {
+    if (total % (maxRequests/10) === 0) {
       var now = new Date().getTime();
-      console.log(total + ": Total elapsed time: " + (now - startTime)/1000 + ": queue length " + queue.length);
+      var elap = (now - startTime)/1000;
+      console.log(total + ": Total elapsed time: " + elap + "(" + total/elap + "/sec): queue length " + queue.length);
+      console.log("response was " + JSON.stringify(response));
+      console.log("original action was: " + JSON.stringify(actionObj.action));
+      console.log("pid = " + pid);
     }
   };
-  setInterval(function() {
+
+  var iv = setInterval(function() {
     for (var i = 1; i < (maxQueue + 1); i++) {
-      scheduler.addToQueue({action: i}, handler);
+      if (queue.length > maxQueue) {
+        //console.log("queue length exceeded");
+        break;
+      }
+      noOfRequests++;
+      if (noOfRequests > maxRequests) {
+        console.log("max (" + maxRequests + ") reached");
+        clearInterval(iv);
+        break;
+      }
+      qoper8.addToQueue({action: {domNo: noOfRequests}}, handler);
     }
   }, interval);
-  
 
+
+  
 });
+
+
+
+
+

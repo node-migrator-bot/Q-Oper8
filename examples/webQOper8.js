@@ -6,7 +6,8 @@ var fs = require("fs");
 
 var qoper8 = require('qoper8');
 
-qoper8.start('', function() {
+var params = {poolSize: 2, maxMsgLength: 8192, childProcessPath: '/home/rob/gdbwork/qoper8ChildProcess.js'};
+qoper8.start(params, function() {
   console.log("Q-Oper8 started!!!");
   var trace = true;
 
